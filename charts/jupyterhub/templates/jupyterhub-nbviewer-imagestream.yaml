@@ -1,0 +1,21 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  labels: {}
+  name: nbviewer
+  namespace: {{ .Values.namespace }}
+spec:
+  lookupPolicy:
+    local: true
+  tags:
+  - annotations:
+      openshift.io/imported-from: quay.io/odh-jupyterhub/nbviewer
+    from:
+      kind: DockerImage
+      name: {{ .Values.nbviewer.image.repository }}:{{ .Values.nbviewer.image.tag }}
+    name: latest
+    importPolicy:
+      scheduled: true
+      insecure: true
+    referencePolicy:
+      type: Source

@@ -1,0 +1,42 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: superset-db-init
+  namespace: {{ .Values.namespace }}
+spec:
+  parallelism: 1
+  completions: 1
+  template:
+    metadata:
+      name: superset-db-init
+    spec:
+      containers:
+        - name: superset-init
+          envFrom:
+            - configMapRef:
+                name: superset
+                # - secretRef:
+                #name: superset-secret
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - /usr/local/bin/superset-init
+            - --username $(SUPERSET_ADMIN_USER) --firstname $(SUPERSET_ADMIN_FNAME) --lastname $(SUPERSET_ADMIN_LNAME) --email $(SUPERSET_ADMIN_EMAIL) --password $(SUPERSET_ADMIN_PASSWORD)
+          volumeMounts:
+            - mountPath: /var/lib/superset
+              name: superset-data
+            - mountPath: /etc/superset
+              name: superset-config
+      volumes:
+        - name: superset-data
+          persistentVolumeClaim:
+            claimName: superset-data
+        - configMap:
+            defaultMode: 420
+            items:
+              - key: superset_config.py
+                path: superset_config.py
+            name: superset
+          name: superset-config
+      restartPolicy: OnFailure

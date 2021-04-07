@@ -1,0 +1,15 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: superset
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: superset
+    opendatahub.io/component: "true"
+    component.opendatahub.io/name: superset
+spec:
+  port:
+    targetPort: 8088-tcp
+  to:
+    kind: Service
+    name: superset

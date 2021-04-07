@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: presto-operator
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.operator.replicaCount }}
+  selector:
+    matchLabels:
+      name: presto-operator
+  template:
+    metadata:
+      labels:
+        name: presto-operator
+    spec:
+      serviceAccountName: presto-operator
+      containers:
+        - name: presto-operator
+          # Replace this with the built image name
+          image: {{ .Values.operator.image.repository }}:{{ .Values.operator.image.tag }}
+          env:
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "presto-operator"

@@ -1,0 +1,21 @@
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  labels:
+    opendatahub.io/notebook-image: "true"
+  name: s2i-spark-minimal-notebook
+spec:
+  lookupPolicy:
+    local: true
+  tags:
+  - annotations:
+      openshift.io/imported-from: quay.io/odh-jupyterhub/s2i-spark-minimal-notebook
+    from:
+      kind: DockerImage
+      name: {{ .Values.spark.notebook.image.repository }}:{{ .Values.spark.notebook.image.tag }}
+    name: "py36-spark2.4.5-hadoop2.7.3"
+    importPolicy:
+      scheduled: true
+      insecure: true
+    referencePolicy:
+      type: Source
